@@ -3,11 +3,13 @@
   <div class='w-full flex flex-col gap-4 '>
 
     <div class='flex '>
-      <UserForm @submit='refreshData'>
-        <Button variant='default'>
-          Add User
-        </Button>
-      </UserForm>
+      <Button variant='default' @click='openUserFormDialog(undefined)'>
+        Add User
+      </Button>
+      <UserForm :user='selectUser'
+                v-model:open='isOpenDialog'
+                @submit='refreshData'
+      />
     </div>
 
     <!--  table for user info -->
@@ -33,11 +35,9 @@
           <td>{{ item.name }}</td>
           <td>{{ item.gender }}</td>
           <td>
-            <UserForm @submit='refreshData' :user='item'>
-              <Button variant='secondary'>
-                Edit
-              </Button>
-            </UserForm>
+            <Button variant='secondary' @click='openUserFormDialog(item)'>
+              Edit
+            </Button>
           </td>
         </tr>
         </tbody>
@@ -101,6 +101,14 @@ import {
 import UserForm from '@/components/UserForm.vue'
 import { getUserList, type User } from '@/lib/user'
 import { computed, ref } from 'vue'
+
+const isOpenDialog = ref(false)
+const selectUser = ref<User | undefined>(undefined)
+const openUserFormDialog = (user: User | undefined) => {
+  selectUser.value = user
+  isOpenDialog.value = true
+  console.log('selectUser', selectUser.value, isOpenDialog.value)
+}
 
 const data = ref<User[]>([])
 const loading = ref(false)

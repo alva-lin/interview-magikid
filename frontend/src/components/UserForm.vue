@@ -8,8 +8,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger
+  DialogTitle
 } from '@/components/ui/dialog'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -19,28 +18,22 @@ import { addUser, GenderArray, updateUser, type User } from '@/lib/user'
 
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
-import { type PropType, ref } from 'vue'
+import { type PropType, ref, watchEffect } from 'vue'
 import * as z from 'zod'
 
 const props = defineProps({
   user: {
-    type: Object as PropType<User>,
+    type: Object as PropType<User | undefined>,
     required: false
   }
 })
-const emit = defineEmits([ 'submit' ])
-
-const dialogState = () => {
-  const isOpen = ref(false)
-
-  function closeDialog() {
-    isOpen.value = false
+const open = defineModel('open', {
+  value: {
+    type: Boolean,
+    required: true
   }
-
-  return [ isOpen, closeDialog ]
-}
-
-const [ isOpen, closeDialog ] = dialogState()
+})
+const emit = defineEmits([ 'submit' ])
 
 const loading = ref(false)
 
@@ -52,14 +45,21 @@ const formSchema = toTypedSchema(z.object({
 const form = useForm({
   validationSchema: formSchema,
   initialValues: {
-    name: props.user?.name || '',
-    gender: props.user?.gender
+    name: '',
+    gender: undefined
   }
 })
 
-const onSubmit = form.handleSubmit(async (values) => {
-  console.log('Form submitted!', values)
+watchEffect(() => {
+  console.log('heheh', props.user)
+  form.setValues({
+    name: props.user?.name || '',
+    gender: props.user?.gender
+  })
+  form.set
+})
 
+const onSubmit = form.handleSubmit(async (values) => {
   loading.value = true
   if (props.user) {
     await updateUser(props.user.uid, values.name, values.gender)
@@ -68,20 +68,25 @@ const onSubmit = form.handleSubmit(async (values) => {
   }
   loading.value = false
 
-  closeDialog()
+  form.resetForm({
+    values: {
+      name: '',
+      gender: undefined
+    }
+  });
+  open.value = false
   emit('submit')
 })
 
 </script>
 
 <template>
-  <Dialog v-model:open='isOpen'>
-    <DialogTrigger as-child>
-      <slot></slot>
-    </DialogTrigger>
+  <Dialog v-model:open='open'>
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Add User</DialogTitle>
+        <DialogTitle>
+          {{ props.user ? 'Edit User' : 'Add User' }}
+        </DialogTitle>
         <DialogDescription></DialogDescription>
       </DialogHeader>
       <form class='w-full space-y-6'>
@@ -114,12 +119,9 @@ const onSubmit = form.handleSubmit(async (values) => {
             <FormMessage />
           </FormItem>
         </FormField>
-        <div class='flex justify-end'>
-        </div>
       </form>
 
       <DialogFooter>
-
         <DialogClose as-child>
           <Button type='button' variant='secondary'>
             Cancel
