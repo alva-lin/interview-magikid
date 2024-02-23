@@ -12,7 +12,7 @@ def get_users():
     users = users_query.items
 
     return jsonify({
-        'users': [user.to_dict() for user in users],
+        'data': [user.to_dict() for user in users],
         'total': users_query.total,
         'pages': users_query.pages,
         'current_page': page
