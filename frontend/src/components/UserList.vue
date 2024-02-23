@@ -14,9 +14,11 @@
 
     <!--  table for user info -->
     <template v-if='data.length === 0'>
-      <div class='w-full h-32 flex items-center justify-center text-3xl font-bold'>
+      <div class='w-full h-32 flex items-center justify-center'>
         <span class='i-fluent-border-none-24-regular text-3xl' />
-        <span>暂无数据</span>
+        <Button variant='outline' @click='refreshData'>
+          暂无数据，点击刷新
+        </Button>
       </div>
     </template>
     <template v-else>
