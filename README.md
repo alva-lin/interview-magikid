@@ -8,7 +8,7 @@
 
 3. 修改 `backend/app/__init__.py` 中的数据库链接
 
-4. 运行 `init.sql` 生成数据库表
+4. 运行 `init.sql` 生成数据库表 (记得修改里面的数据库名称)
 
 5. 运行 `python -m flask run` 文件启动服务
 
